@@ -276,7 +276,7 @@ $(document).ready(function () {
                 deleteButton.addEventListener('click', () => {
                     // Delete the question from the database
                     session = Object.keys(questionData)[Array.from(tbody.children).indexOf(row)];
-                    let questionRef = ref(db, 'questions/' + nameSelected + "/" +session );
+                    let questionRef = ref(db, 'questions/' + nameSelected + "/" + session);
                     remove(questionRef);
                     // Remove the row from the table
                     row.remove();
@@ -301,9 +301,9 @@ $(document).ready(function () {
                     answerChoicesInput.value = rowData[2].innerText;
                     let typeInput = document.getElementById('type-4');
                     typeInput.value = rowData[3].innerText;
-                    
-                     session = Object.keys(questionData)[Array.from(tbody.children).indexOf(row)];
-                console.log(key);
+
+                    session = Object.keys(questionData)[Array.from(tbody.children).indexOf(row)];
+                    console.log(key);
                     $('#editModal6').modal('show');
                 });
                 actionCell.appendChild(editButton);
@@ -345,7 +345,6 @@ $(document).ready(function () {
     //     console.log(error);
     // });
     $("#addModal .submit").on("click", () => {
-        alert("đã vô");
         let question = document.getElementById('question').value;
         let answer = document.getElementById('answer').value;
         let answerChoices = document.getElementById('answer-choices').value.split(',');
@@ -353,37 +352,40 @@ $(document).ready(function () {
         let questionId = this.value;
         console.log(questionId);
 
+        if (question && answer && answerChoices.length && type && nameSelected) {
+            let questionRef = ref(db, 'questions/' + nameSelected);
+            get(questionRef).then((snapshot) => {
+                let questionData2 = snapshot.val();
 
-        let questionRef = ref(db, 'questions/' + nameSelected);
-        get(questionRef).then((snapshot) => {
-            let questionData2 = snapshot.val();
+                // // Add the new question to the database
+                let newQuestionRef = ref(db, 'questions/' + nameSelected + "/" + "question" + (Object.keys(questionData2).length + 1));
+                console.log(newQuestionRef)
+                set(newQuestionRef, {
+                    question: question,
+                    answer: answer,
+                    answerchose: answerChoices,
+                    typequestion: type
+                }).then(() => {
+                    alert('successfully create!');
+                    $('#addModal').modal('hide');
+                })
+                    .catch((error) => {
+                        alert('Error create: ', error);
+                    });
+                ;
 
-            // // Add the new question to the database
-            let newQuestionRef = ref(db, 'questions/' + nameSelected + "/" + "question" + (Object.keys(questionData2).length + 1));
-            console.log(newQuestionRef)
-            set(newQuestionRef, {
-                question: question,
-                answer: answer,
-                answerchose: answerChoices,
-                typequestion: type
-            }).then(() => {
-                alert('successfully create!');
-                $('#addModal').modal('hide');
-            })
-                .catch((error) => {
-                    alert('Error create: ', error);
-                });
-            ;
+                console.log({
+                    question: question,
+                    answer: answer,
+                    answerchose: answerChoices,
+                    typequestion: type
+                })
+            });
 
-            console.log({
-                question: question,
-                answer: answer,
-                answerchose: answerChoices,
-                typequestion: type
-            })
-        });
-
-        window.location.reload();
+            window.location.reload();
+        } else {
+            alert("Please fill out all required fields.");
+        }
 
 
     })
@@ -397,27 +399,31 @@ $(document).ready(function () {
         let type = document.getElementById('type').value;
         let questionId = this.value;
         console.log(nameSelected);
-        // Add the new question to the database
-        let newQuestionRef = push(ref(db, 'questions/' + nameSelected));
-        set(newQuestionRef, {
-            question: question,
-            answer: answer,
-            answerchose: answerChoices,
-            typequestion: type
-        });
+        if (question && answer && answerChoices.length && type && nameSelected) {
+            // Add the new question to the database
+            let newQuestionRef = push(ref(db, 'questions/' + nameSelected));
+            set(newQuestionRef, {
+                question: question,
+                answer: answer,
+                answerchose: answerChoices,
+                typequestion: type
+            });
 
-        console.log({
-            question: question,
-            answer: answer,
-            answerchose: answerChoices,
-            typequestion: type
-        })
+            console.log({
+                question: question,
+                answer: answer,
+                answerchose: answerChoices,
+                typequestion: type
+            })
 
-        // // Close the modal
-        // let modal = document.getElementById('add-question-modal');
-        // let modalInstance = bootstrap.Modal.getInstance(modal);
-        // modalInstance.hide();
-        window.location.reload();
+            // // Close the modal
+            // let modal = document.getElementById('add-question-modal');
+            // let modalInstance = bootstrap.Modal.getInstance(modal);
+            // modalInstance.hide();
+            window.location.reload();
+        } else {
+            alert("Please fill out all required fields.");
+        }
     })
 
 
@@ -451,7 +457,6 @@ $(document).ready(function () {
     })
 
     $(".save_edited_data_2").on("click", (event) => {
-        alert("đã vô");
         event.preventDefault();
         let question = document.getElementById('question-1').value;
         let answer = document.getElementById('answer-2').value;
@@ -460,24 +465,25 @@ $(document).ready(function () {
         let questionId = this.value;
         console.log(questionId);
         // Add the new question to the database
+        if (question && answer && answerChoices.length && type) {
         const db = getDatabase();
         let newQuestionRef = ref(db, 'questions/' + nameSelected + "/" + session);
         console.log(newQuestionRef);
-       
+
         update(newQuestionRef, {
             question: question,
             answer: answer,
             answerchose: answerChoices,
             typequestion: type
         })
-        .then(() => {
-           alert('successfully updated!');
-           $('#editModal6').modal('hide');
-           
-        })
-        .catch((error) => {
-            alert('Error updating: ', error);
-        });      
+            .then(() => {
+                alert('successfully updated!');
+                $('#editModal6').modal('hide');
+
+            })
+            .catch((error) => {
+                alert('Error updating: ', error);
+            });
 
         console.log({
             question: question,
@@ -491,6 +497,9 @@ $(document).ready(function () {
         // let modalInstance = bootstrap.Modal.getInstance(modal);
         // modalInstance.hide();
         window.location.reload();
+    }else{
+        alert("Please fill out all required fields.");
+    }
     })
 
     $(document).on("click", ".deleteButton", function () {
